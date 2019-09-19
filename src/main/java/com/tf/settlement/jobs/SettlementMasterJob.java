@@ -6,52 +6,52 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 
 @Component
 public class SettlementMasterJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SettlementMasterJob.class);
-    private static final String SETTLEMENT_JOB_ONE_ID = "Settlement Job One";
-    private static final String SETTLEMENT_JOB_TWO_ID = "Settlement Job Two";
+    private static final Map<String, Class<? extends Job>> SETTLEMENT_JOB_CLASSES = new HashMap<>();
 
-    @Value("${settlement.job.one.cron}")
-    private String settlementCronExpOne;
+    static {
+        SETTLEMENT_JOB_CLASSES.put("one", SettlementJobOne.class);
+        SETTLEMENT_JOB_CLASSES.put("two", SettlementJobTwo.class);
+    }
 
-    @Value("${settlement.job.two.cron}")
-    private String settlementCronExpTwo;
+    @Value("#{${settlement.job.crons}}")
+    private Map<String, String> settlementCronExps;
 
     @Override
     public void execute(JobExecutionContext context) {
         LOGGER.info("Settlement Master Job Scheduler Starts");
-        try {
-
-            if (!context.getScheduler().checkExists(JobKey.jobKey(SETTLEMENT_JOB_ONE_ID))) {
-                LOGGER.info("Scheduling Settlement Job One");
-                context.getScheduler().scheduleJob(buildJobDetail(SettlementJobOne.class, SETTLEMENT_JOB_ONE_ID),
-                        buildTrigger(settlementCronExpOne, "Settlement Job Trigger One"));
+        settlementCronExps.forEach((jobId, jobCron) -> {
+            try {
+                if (!context.getScheduler().checkExists(JobKey.jobKey(jobId))) {
+                    LOGGER.info("Scheduling Settlement Job {}", jobId);
+                    context.getScheduler().scheduleJob(buildJobDetail(SETTLEMENT_JOB_CLASSES.get(jobId), jobId),
+                            buildTrigger(jobCron, jobId));
+                }
+            } catch (SchedulerException exp) {
+                LOGGER.error("Error occurred while scheduling settlement jobs", exp);
             }
+        });
 
-            if (!context.getScheduler().checkExists(JobKey.jobKey(SETTLEMENT_JOB_TWO_ID))) {
-                LOGGER.info("Scheduling Settlement Job Two");
-                context.getScheduler().scheduleJob(buildJobDetail(SettlementJobTwo.class, SETTLEMENT_JOB_TWO_ID),
-                        buildTrigger(settlementCronExpTwo, "Settlement Job Trigger Two"));
-            }
-        } catch (SchedulerException se) {
-            LOGGER.error("Error occurred while scheduling settlement jobs", se);
-        }
     }
 
-    private JobDetail buildJobDetail(Class<? extends Job> jobClass, String identity) {
+    private JobDetail buildJobDetail(Class<? extends Job> jobClass, String jobId) {
         return JobBuilder.newJob(jobClass)
                 .storeDurably()
-                .withIdentity(identity)
+                .withIdentity(jobId)
                 .build();
     }
 
-    private Trigger buildTrigger(String jobCron, String identity) {
+    private Trigger buildTrigger(String jobCron, String jobId) {
         return TriggerBuilder.newTrigger()
-                .withIdentity(identity)
+                .withIdentity(jobId)
                 .withSchedule(cronSchedule(jobCron))
                 .build();
     }
