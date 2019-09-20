@@ -1,4 +1,4 @@
-package com;
+package com.tf.settlement;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

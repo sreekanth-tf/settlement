@@ -1,17 +1,16 @@
 package com.tf.settlement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+@Slf4j
 public class SettlementApplication {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SettlementApplication.class);
 
-	public static void main(String[] args) {
-		LOGGER.info("Starting Settlement Scheduler Job POC");
-		SpringApplication.run(SettlementApplication.class, args);
-		LOGGER.info("Started Settlement Scheduler Job POC");
-	}
+    public static void main(String[] args) {
+        log.info("Starting Settlement Scheduler Job POC");
+        SpringApplication.run(SettlementApplication.class, args);
+        log.info("Started Settlement Scheduler Job POC");
+    }
 }

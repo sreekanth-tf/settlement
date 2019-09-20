@@ -1,14 +1,13 @@
 package com.tf.settlement.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class SettlementServiceTwo {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SettlementServiceTwo.class);
 
     public void doSettlement() {
-        LOGGER.info("In Settlement Service Two, Thread Id {}", Thread.currentThread().getName());
+        log.info("In Settlement Service Two, Thread Id {}", Thread.currentThread().getName());
     }
 }
