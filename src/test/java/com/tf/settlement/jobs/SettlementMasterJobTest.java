@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Duration;
+
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertNotNull;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -44,7 +47,8 @@ public class SettlementMasterJobTest {
                         .withIntervalInSeconds(1))
                 .build();
         scheduler.scheduleJob(job, trigger);
-        Thread.sleep(1000);
+        await().atMost(Duration.ofMinutes(1))
+                .untilAsserted(() -> scheduler.checkExists(jobKey("one")));
         scheduler.shutdown(true);
     }
 }
