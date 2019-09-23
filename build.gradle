@@ -22,5 +22,4 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile group: 'org.awaitility', name: 'awaitility', version: '4.0.1'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 }
